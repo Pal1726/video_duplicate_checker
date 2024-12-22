@@ -1,6 +1,6 @@
 import ffmpeg
 import speech_recognition as sr
-import os
+from io import BytesIO
 import time
 import random
 import string
@@ -11,34 +11,36 @@ def generate_unique_filename(extension):
     random_str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))  # Random 6 characters
     return f"{timestamp}_{random_str}{extension}"
 
-def extract_audio(video_path, audio_path):
+def extract_audio_in_memory(video_path):
     try:
-        # Extract audio from the video using ffmpeg with the -y flag to overwrite any existing files
-        ffmpeg.input(video_path).output(audio_path, y=None).run()
-        return {"status": "success", "message": "Audio extracted successfully."}
+        # Extract audio from the video using ffmpeg and store it in memory (using pipe:1)
+        out, err = (
+            ffmpeg
+            .input(video_path)
+            .output('pipe:1', format='wav')  # Pipe the audio output in WAV format
+            .run(capture_stdout=True, capture_stderr=True)
+        )
+        return {"status": "success", "audio_data": out}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
-def transcribe_audio(audio_path):
+def transcribe_audio_from_memory(audio_data):
     try:
         # Initialize recognizer
         recognizer = sr.Recognizer()
-        with sr.AudioFile(audio_path) as source:
-            audio_data = recognizer.record(source)
+        audio_file = BytesIO(audio_data)  # Convert audio bytes to a file-like object
+        with sr.AudioFile(audio_file) as source:
+            audio = recognizer.record(source)
             # Use Google Web Speech API for transcription
-            text = recognizer.recognize_google(audio_data)
+            text = recognizer.recognize_google(audio)
         return {"status": "success", "text": text}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
 def compare_audio(video1_path, video2_path):
-    # Generate unique filenames for each audio file
-    audio1_path = generate_unique_filename(".wav")
-    audio2_path = generate_unique_filename(".wav")
-
-    # Step 1: Extract audio from both videos
-    extract_result1 = extract_audio(video1_path, audio1_path)
-    extract_result2 = extract_audio(video2_path, audio2_path)
+    # Step 1: Extract audio from both videos in memory
+    extract_result1 = extract_audio_in_memory(video1_path)
+    extract_result2 = extract_audio_in_memory(video2_path)
 
     if extract_result1["status"] == "error" or extract_result2["status"] == "error":
         return {
@@ -46,9 +48,9 @@ def compare_audio(video1_path, video2_path):
             "message": f"Error extracting audio: {extract_result1['message']} or {extract_result2['message']}"
         }
 
-    # Step 2: Transcribe audio
-    transcription1 = transcribe_audio(audio1_path)
-    transcription2 = transcribe_audio(audio2_path)
+    # Step 2: Transcribe audio in memory
+    transcription1 = transcribe_audio_from_memory(extract_result1["audio_data"])
+    transcription2 = transcribe_audio_from_memory(extract_result2["audio_data"])
 
     if transcription1["status"] == "error" or transcription2["status"] == "error":
         return {

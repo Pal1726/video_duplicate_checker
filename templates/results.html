@@ -31,9 +31,10 @@
 
     <h3>Frame Comparison Results:</h3>
     <ul>
-        <li>Frame Similarity: {{ frame_result.similarity }}%</li>
-        <li>{{ 'The videos appear to be identical based on frame comparison!' if frame_result.similarity == 100 else 'The videos might not be identical based on frame comparison.' }}</li>
+        <li>Frame Similarity: {{ frame_result.frame_similarity }}%</li>
+        <li>{{ 'The videos appear to be identical based on frame comparison!' if frame_result.frame_similarity == 100 else 'The videos might not be identical based on frame comparison.' }}</li>
     </ul>
+
 
     <h3>Audio Comparison Results:</h3>
     <ul>

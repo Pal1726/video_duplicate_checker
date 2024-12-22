@@ -1,8 +1,9 @@
 from flask import Flask, request, render_template, redirect, url_for
+from werkzeug.utils import secure_filename  # Import secure_filename
 import os
 from metadata_analysis import compare_metadata
-from frame_analysis import compare_frames  # Import the frame comparison function
-from audio_analysis import compare_audio  # Import the audio comparison function
+from frame_analysis import compare_frames
+from audio_analysis import compare_audio
 
 app = Flask(__name__)
 
@@ -23,9 +24,9 @@ def upload():
     video2 = request.files['video2']
 
     if video1 and video2:
-        # Save videos to the uploads folder
-        video1_path = os.path.join(app.config['UPLOAD_FOLDER'], video1.filename)
-        video2_path = os.path.join(app.config['UPLOAD_FOLDER'], video2.filename)
+        # Use secure_filename to sanitize filenames
+        video1_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(video1.filename))
+        video2_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(video2.filename))
         
         video1.save(video1_path)
         video2.save(video2_path)

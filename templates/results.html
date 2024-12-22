@@ -4,48 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Comparison Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1, h3 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.6em;
+            color: #d9534f;
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            font-size: 1.2em;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .result-section {
+            background-color: white;
+            padding: 20px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 900px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-section p {
+            font-size: 1.2em;
+        }
+
+        .yes {
+            color: green;
+            font-weight: bold;
+        }
+
+        .no {
+            color: red;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+    </style>
 </head>
 <body>
-    <h1>Video Comparison Results</h1>
+    <header>
+        <h1>Video Comparison Results</h1>
+    </header>
 
-    <h3>Video 1 Metadata:</h3>
-    <ul>
-        <li>Duration: {{ metadata_result.metadata1.duration }} seconds</li>
-        <li>Resolution: {{ metadata_result.metadata1.resolution }}</li>
-        <li>Codec: {{ metadata_result.metadata1.codec }}</li>
-    </ul>
+    <div class="result-section">
+        <h3>Video 1 Metadata:</h3>
+        <ul>
+            <li>Duration: {{ metadata_result.metadata1.duration }} seconds</li>
+            <li>Resolution: {{ metadata_result.metadata1.resolution }}</li>
+            <li>Codec: {{ metadata_result.metadata1.codec }}</li>
+        </ul>
+    </div>
 
-    <h3>Video 2 Metadata:</h3>
-    <ul>
-        <li>Duration: {{ metadata_result.metadata2.duration }} seconds</li>
-        <li>Resolution: {{ metadata_result.metadata2.resolution }}</li>
-        <li>Codec: {{ metadata_result.metadata2.codec }}</li>
-    </ul>
+    <div class="result-section">
+        <h3>Video 2 Metadata:</h3>
+        <ul>
+            <li>Duration: {{ metadata_result.metadata2.duration }} seconds</li>
+            <li>Resolution: {{ metadata_result.metadata2.resolution }}</li>
+            <li>Codec: {{ metadata_result.metadata2.codec }}</li>
+        </ul>
+    </div>
 
-    <h3>Metadata Comparison Results:</h3>
-    <ul>
-        <li>Duration Match: {{ 'Yes' if metadata_result.duration_match else 'No' }}</li>
-        <li>Resolution Match: {{ 'Yes' if metadata_result.resolution_match else 'No' }}</li>
-        <li>Codec Match: {{ 'Yes' if metadata_result.codec_match else 'No' }}</li>
-    </ul>
+    <div class="result-section">
+        <h3>Metadata Comparison Results:</h3>
+        <ul>
+            <li>Duration Match: <span class="{{ 'yes' if metadata_result.duration_match else 'no' }}">{{ 'Yes' if metadata_result.duration_match else 'No' }}</span></li>
+            <li>Resolution Match: <span class="{{ 'yes' if metadata_result.resolution_match else 'no' }}">{{ 'Yes' if metadata_result.resolution_match else 'No' }}</span></li>
+            <li>Codec Match: <span class="{{ 'yes' if metadata_result.codec_match else 'no' }}">{{ 'Yes' if metadata_result.codec_match else 'No' }}</span></li>
+        </ul>
+    </div>
 
-    <h3>Frame Comparison Results:</h3>
-    <ul>
-        <li>Frame Similarity: {{ frame_result.frame_similarity }}%</li>
-        <li>{{ 'The videos appear to be identical based on frame comparison!' if frame_result.frame_similarity == 100 else 'The videos might not be identical based on frame comparison.' }}</li>
-    </ul>
+    <div class="result-section">
+        <h3>Frame Comparison Results:</h3>
+        <ul>
+            <li>Frame Similarity: {{ frame_result.frame_similarity }}%</li>
+            <li>{{ 'The videos appear to be identical based on frame comparison!' if frame_result.frame_similarity == 100 else 'The videos might not be identical based on frame comparison.' }}</li>
+        </ul>
+    </div>
 
+    <div class="result-section">
+        <h3>Audio Comparison Results:</h3>
+        <ul>
+            <li>Audio 1 Text: {{ audio_result.text1 }}</li>
+            <li>Audio 2 Text: {{ audio_result.text2 }}</li>
+            <li>Audio Match: <span class="{{ 'yes' if audio_result.audio_match else 'no' }}">{{ 'Yes' if audio_result.audio_match else 'No' }}</span></li>
+        </ul>
+    </div>
 
-    <h3>Audio Comparison Results:</h3>
-    <ul>
-        <li>Audio 1 Text: {{ audio_result.text1 }}</li>
-        <li>Audio 2 Text: {{ audio_result.text2 }}</li>
-        <li>Audio Match: {{ 'Yes' if audio_result.audio_match else 'No' }}</li>
-    </ul>
+    <div class="result-section">
+        <h3>Overall Similarity Score:</h3>
+        <p>{{ overall_similarity }}%</p>
+    </div>
 
-    <h3>Overall Similarity Score:</h3>
-    <p>{{ overall_similarity }}%</p>
+    <div class="result-section">
+        <h2>{{ 'The videos are duplicates!' if overall_similarity > 80 else 'The videos might not be duplicates.' }}</h2>
+    </div>
 
-    <h2>{{ 'The videos are duplicates!' if overall_similarity > 80 else 'The videos might not be duplicates.' }}</h2>
+    <footer>
+        <p>&copy; 2024 Video Comparison Tool. All rights reserved.</p>
+    </footer>
+
 </body>
 </html>

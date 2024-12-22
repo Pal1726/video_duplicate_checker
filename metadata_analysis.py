@@ -37,4 +37,3 @@ def compare_metadata(video1_path, video2_path):
         "metadata2": metadata2,
     }
     return comparison
-

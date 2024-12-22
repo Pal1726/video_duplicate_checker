@@ -17,42 +17,44 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
     if 'video1' not in request.files or 'video2' not in request.files:
-        return jsonify({"message": "Please upload two videos for comparison."})
-
+        return "Please upload two videos for comparison."
+    
     video1 = request.files['video1']
     video2 = request.files['video2']
 
-    if allowed_file(video1.filename) and allowed_file(video2.filename):
-        filename1 = secure_filename(video1.filename)
-        filename2 = secure_filename(video2.filename)
-
-        video1_path = os.path.join(app.config['UPLOAD_FOLDER'], filename1)
-        video2_path = os.path.join(app.config['UPLOAD_FOLDER'], filename2)
-
+    if video1 and video2:
+        # Save videos to the uploads folder
+        video1_path = os.path.join(app.config['UPLOAD_FOLDER'], video1.filename)
+        video2_path = os.path.join(app.config['UPLOAD_FOLDER'], video2.filename)
+        
         video1.save(video1_path)
         video2.save(video2_path)
-
-        # Proceed with comparison (assume videos are already compressed client-side)
+        
+        # Metadata comparison
         metadata_comparison_result = compare_metadata(video1_path, video2_path)
+        
+        if metadata_comparison_result["status"] == "error":
+            return metadata_comparison_result["message"]
+        
+        # Frame-by-frame comparison
         frame_comparison_result = compare_frames(video1_path, video2_path)
+
+        # Audio comparison
         audio_comparison_result = compare_audio(video1_path, video2_path)
+        
+        if audio_comparison_result["status"] == "error":
+            return audio_comparison_result["message"]
+        
+        # Combine results (weights: 20% metadata, 40% frame, 40% audio)
+        overall_similarity = calculate_overall_similarity(metadata_comparison_result, frame_comparison_result, audio_comparison_result)
+        
+        return render_template('results.html', 
+                               metadata_result=metadata_comparison_result, 
+                               frame_result=frame_comparison_result, 
+                               audio_result=audio_comparison_result,
+                               overall_similarity=overall_similarity)
 
-        overall_similarity = calculate_overall_similarity(
-            metadata_comparison_result,
-            frame_comparison_result,
-            audio_comparison_result
-        )
-
-        return jsonify({
-            "message": "Videos compared successfully!",
-            "metadata_result": metadata_comparison_result,
-            "frame_result": frame_comparison_result,
-            "audio_result": audio_comparison_result,
-            "overall_similarity": overall_similarity
-        })
-    else:
-        return jsonify({"message": "Invalid file type. Please upload valid videos."})
-
+    return "Failed to upload videos."
 
 def calculate_overall_similarity(metadata_result, frame_result, audio_result):
     # Weights: 20% for metadata, 40% for frame comparison, 40% for audio comparison

@@ -8,60 +8,43 @@
 <body>
     <h1>Video Comparison Results</h1>
 
-    {% if metadata_result.status == 'error' %}
-        <h2 style="color: red;">Error: {{ metadata_result.message }}</h2>
-    {% else %}
-        <h3>Video 1 Metadata:</h3>
-        <ul>
-            <li>Duration: {{ metadata_result.metadata1.duration }} seconds</li>
-            <li>Resolution: {{ metadata_result.metadata1.resolution }}</li>
-            <li>Codec: {{ metadata_result.metadata1.codec }}</li>
-        </ul>
+    <h3>Video 1 Metadata:</h3>
+    <ul>
+        <li>Duration: {{ metadata_result.metadata1.duration }} seconds</li>
+        <li>Resolution: {{ metadata_result.metadata1.resolution }}</li>
+        <li>Codec: {{ metadata_result.metadata1.codec }}</li>
+    </ul>
 
-        <h3>Video 2 Metadata:</h3>
-        <ul>
-            <li>Duration: {{ metadata_result.metadata2.duration }} seconds</li>
-            <li>Resolution: {{ metadata_result.metadata2.resolution }}</li>
-            <li>Codec: {{ metadata_result.metadata2.codec }}</li>
-        </ul>
+    <h3>Video 2 Metadata:</h3>
+    <ul>
+        <li>Duration: {{ metadata_result.metadata2.duration }} seconds</li>
+        <li>Resolution: {{ metadata_result.metadata2.resolution }}</li>
+        <li>Codec: {{ metadata_result.metadata2.codec }}</li>
+    </ul>
 
-        <h3>Metadata Comparison Results:</h3>
-        <ul>
-            <li>Duration Match: {{ 'Yes' if metadata_result.duration_match else 'No' }}</li>
-            <li>Resolution Match: {{ 'Yes' if metadata_result.resolution_match else 'No' }}</li>
-            <li>Codec Match: {{ 'Yes' if metadata_result.codec_match else 'No' }}</li>
-        </ul>
-
-        {% if metadata_result.duration_match and metadata_result.resolution_match and metadata_result.codec_match %}
-            <h2 style="color: green;">The videos appear to be duplicates based on metadata!</h2>
-        {% else %}
-            <h2 style="color: orange;">The videos might not be duplicates based on metadata alone.</h2>
-        {% endif %}
-    {% endif %}
+    <h3>Metadata Comparison Results:</h3>
+    <ul>
+        <li>Duration Match: {{ 'Yes' if metadata_result.duration_match else 'No' }}</li>
+        <li>Resolution Match: {{ 'Yes' if metadata_result.resolution_match else 'No' }}</li>
+        <li>Codec Match: {{ 'Yes' if metadata_result.codec_match else 'No' }}</li>
+    </ul>
 
     <h3>Frame Comparison Results:</h3>
-    {% if frame_result.status == 'error' %}
-        <p style="color: red;">Error: {{ frame_result.message }}</p>
-    {% else %}
-        <ul>
-            <li>Frame Similarity: {{ frame_result.frame_similarity }}%</li>
-        </ul>
+    <ul>
+        <li>Frame Similarity: {{ frame_result.similarity }}%</li>
+        <li>{{ 'The videos appear to be identical based on frame comparison!' if frame_result.similarity == 100 else 'The videos might not be identical based on frame comparison.' }}</li>
+    </ul>
 
-        {% if frame_result.frame_similarity == 100 %}
-            <h2 style="color: green;">The videos appear to be identical based on frame comparison!</h2>
-        {% else %}
-            <h2 style="color: orange;">The videos might not be identical based on frame comparison.</h2>
-        {% endif %}
-    {% endif %}
+    <h3>Audio Comparison Results:</h3>
+    <ul>
+        <li>Audio 1 Text: {{ audio_result.text1 }}</li>
+        <li>Audio 2 Text: {{ audio_result.text2 }}</li>
+        <li>Audio Match: {{ 'Yes' if audio_result.audio_match else 'No' }}</li>
+    </ul>
 
-    <h3>Overall Similarity:</h3>
-    <p>Overall similarity score based on metadata (20%) and frame comparison (40%): {{ overall_similarity }}%</p>
+    <h3>Overall Similarity Score:</h3>
+    <p>{{ overall_similarity }}%</p>
 
-    {% if overall_similarity == 60 %}
-        <h2 style="color: green;">The videos are highly likely to be duplicates!</h2>
-    {% else %}
-        <h2 style="color: orange;">The videos might not be duplicates based on the overall similarity.</h2>
-    {% endif %}
-    
+    <h2>{{ 'The videos are duplicates!' if overall_similarity > 80 else 'The videos might not be duplicates.' }}</h2>
 </body>
 </html>
